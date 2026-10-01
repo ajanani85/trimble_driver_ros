@@ -145,7 +145,12 @@ class GsofClientRos : public rclcpp::Node {
   void publishGsofMessage(const trmb::gsof::Message &message) {
     auto publisher = getGsofPublisher<RosMessageType>(gsof_id);
     auto ros_msg = toRosMessage(message.as<NativeMessageType>());
-    ros_msg.header.stamp = ros_clock_.now();
+
+    if constexpr (HasStdMsgsHeaderV<RosMessageType>) {
+      // No GSOF GpsTime available to convert, so fall back to the node's clock.
+      ros_msg.header.stamp = ros_clock_.now();
+    }
+
     publisher->publish(ros_msg);
   }
 
