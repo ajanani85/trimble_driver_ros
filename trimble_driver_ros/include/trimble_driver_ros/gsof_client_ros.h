@@ -144,7 +144,9 @@ class GsofClientRos : public rclcpp::Node {
                              bool> = true>
   void publishGsofMessage(const trmb::gsof::Message &message) {
     auto publisher = getGsofPublisher<RosMessageType>(gsof_id);
-    publisher->publish(toRosMessage(message.as<NativeMessageType>()));
+    auto ros_msg = toRosMessage(message.as<NativeMessageType>());
+    ros_msg.header.stamp = ros_clock_.now();
+    publisher->publish(ros_msg);
   }
 
   rclcpp::Time getRosTimestamp(const trmb::gsof::GpsTime &gps_time);
